@@ -11,6 +11,12 @@ daos (1.3.104-3) unstable; urgency=medium
  -- Niu Yawei <yawei.niu@intel.com>  Mon, 09 Aug 2021 14:22:00 +0800
 
 daos (1.3.104-2) unstable; urgency=medium
+  [ Dalton Bohning ]
+  * Update OFI to v1.13.0
+
+ -- Dalton Bohning <daltonx.bohning@intel.com>  Fri, 06 Aug 2021
+
+daos (1.3.104-2) unstable; urgency=medium
   [ Kris Jacque ]
   * Move daos_metrics to server package
 
