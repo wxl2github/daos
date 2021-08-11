@@ -64,16 +64,16 @@ CRT_RPC_DECLARE(dtx, DAOS_ISEQ_DTX, DAOS_OSEQ_DTX);
  *	it cannot be too small; otherwise, handing resent RPC
  *	make hit uncertain case and got failure -DER_EP_OLD.
  */
-#define DTX_AGG_THD_CNT_LO	((1 << 19) * 6)
+#define DTX_AGG_THD_CNT_LO	(1 << 24)
 
 /* The count threshold for triggerring DTX aggregation. */
-#define DTX_AGG_THD_CNT_UP	((1 << 19) * 7)
+#define DTX_AGG_THD_CNT_UP	(1 << 25)
 
 /* The time threshold for triggerring DTX aggregation. If the oldest
  * DTX in the DTX table exceeds such threshold, it will trigger DTX
  * aggregation locally.
  */
-#define DTX_AGG_THD_AGE_UP	210
+#define DTX_AGG_THD_AGE_UP	1200
 
 /* If DTX aggregation is triggered, then the DTXs with older ages than
  * this threshold will be aggregated.
@@ -81,18 +81,18 @@ CRT_RPC_DECLARE(dtx, DAOS_ISEQ_DTX, DAOS_OSEQ_DTX);
  * XXX: It cannot be too small; otherwise, handing resent RPC
  *	make hit uncertain case and got failure -DER_EP_OLD.
  */
-#define DTX_AGG_THD_AGE_LO	180
+#define DTX_AGG_THD_AGE_LO	1100
 
 /* The time threshold for triggerring DTX cleanup of stale entries.
  * If the oldest active DTX exceeds such threshold, it will trigger
  * DTX cleanup locally.
  */
-#define DTX_CLEANUP_THD_AGE_UP	60
+#define DTX_CLEANUP_THD_AGE_UP	1200
 
 /* If DTX cleanup for stale entries is triggered, then the DTXs with
  * older ages than this threshold will be cleanup.
  */
-#define DTX_CLEANUP_THD_AGE_LO	45
+#define DTX_CLEANUP_THD_AGE_LO	1100
 
 struct dtx_pool_metrics {
 	struct d_tm_node_t	*dpm_total[DTX_PROTO_SRV_RPC_COUNT];
