@@ -785,6 +785,36 @@ class DmgCommand(DmgCommandBase):
         return self._get_result(
             ("cont", "set-owner"), pool=pool, cont=cont, user=user, group=group)
 
+    def system_cleanup(self, machinename=None, verbose=True):
+        """Release all resources associated with the specified machine.
+
+        Args:
+            machinename (str): Specify machine to clean up resources for.
+            verbose (bool): Retrieve list of pools cleaned up and handle counts.
+
+        Raises:
+            CommandFailure: if the dmg system cleanup command fails.
+
+        Returns:
+            dict: dictionary of output in JSON format
+        """
+        # Sample output:
+        #{
+        #  "response": {
+        #    "status": 0,
+        #    "pools": [
+        #      {
+        #        "Id": "e21883a7-9803-430e-8758-87d853b06fb3",
+        #        "count": 10
+        #      }
+        #    ]
+        #  },
+        #  "error": null,
+        #  "status": 0
+        #}
+        return self._get_json_result(
+            ("system", "cleanup"), machinename=machinename, verbose=verbose)
+
     def system_query(self, ranks=None, verbose=True):
         """Query system to obtain the status of the servers.
 
