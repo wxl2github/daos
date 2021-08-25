@@ -29,7 +29,7 @@ class DmgSystemCleanupTest(TestWithServers):
         Test Description: Test dmg system cleanup.
 
         :avocado: tags=all,full_regression
-        :avocado: tags=small
+        :avocado: tags=small,dmg
         :avocado: tags=control,dmg_system_cleanup
         """
         # Create 2 pools and create a container in each pool.
