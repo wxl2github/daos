@@ -251,7 +251,7 @@ type systemCleanupCmd struct {
 		Machine string `positional-arg-name:"<Machine to cleanup>"`
 	} `positional-args:"yes"`
 
-	Verbose bool `bool:"verbose" short:"v" description:"Output additional cleanup information"`
+	Verbose bool `long:"verbose" short:"v" description:"Output additional cleanup information"`
 }
 
 func (cmd *systemCleanupCmd) Execute(_ []string) (errOut error) {

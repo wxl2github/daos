@@ -42,14 +42,14 @@ class DmgSystemCleanupTest(TestWithServers):
         daos_cmd = self.get_daos_command()
 
         # Call daos pool list-cont on each pool. It should succeed.
-        for i, pool in self.pool:
+        for pool in self.pool:
             try:
                 daos_cmd.container_list(pool=pool.uuid)
                 self.log.info(
-                    "daos pool list-cont on pool[%d] succeeded as expected", i)
+                    "daos pool list-cont on pool[%s] succeeded as expected", pool.uuid)
             except CommandFailure:
                 self.fail(
-                    "daos pool list-cont on pool[{}] failed unexpectedly!".format(i))
+                    "daos pool list-cont on pool[{}] failed unexpectedly!".format(pool.uuid))
 
         # Build a list of pool IDs to compare against our cleanup results.
         expected_pool_list = set()
@@ -69,13 +69,13 @@ class DmgSystemCleanupTest(TestWithServers):
 
 
         # Call daos pool list-cont on the pools again. It should fail.
-        for i, pool in self.pool:
+        for pool in self.pool:
             try:
                 daos_cmd.container_list(pool=pool.uuid)
             except CommandFailure:
                 self.log.info(
-                    "daos pool list-cont on pool[%d] failed as expected", i)
+                    "daos pool list-cont on pool[%s] failed as expected", pool.uuid)
             else:
                 self.fail(
-                    "daos pool list-cont on pool[{}] succeeded unexpectedly!".format(i))
+                    "daos pool list-cont on pool[{}] succeeded unexpectedly!".format(pool.uuid))
         self.log.info("Test passed!")
