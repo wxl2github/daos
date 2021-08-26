@@ -42,9 +42,9 @@ class DmgSystemCleanupTest(TestWithServers):
         daos_cmd = self.get_daos_command()
 
         # Call daos pool list-cont on each pool. It should succeed.
-        for i in self.pool:
+        for i, pool in self.pool:
             try:
-                daos_cmd.container_list(pool=self.pool[i].uuid)
+                daos_cmd.container_list(pool=pool.uuid)
                 self.log.info(
                     "daos pool list-cont on pool[%d] succeeded as expected", i)
             except CommandFailure:
@@ -69,9 +69,9 @@ class DmgSystemCleanupTest(TestWithServers):
 
 
         # Call daos pool list-cont on the pools again. It should fail.
-        for i in self.pool:
+        for i, pool in self.pool:
             try:
-                daos_cmd.container_list(pool=self.pool[i].uuid)
+                daos_cmd.container_list(pool=pool.uuid)
             except CommandFailure:
                 self.log.info(
                     "daos pool list-cont on pool[%d] failed as expected", i)
