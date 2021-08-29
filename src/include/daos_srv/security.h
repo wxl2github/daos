@@ -68,7 +68,6 @@ ds_sec_pool_get_origin(d_iov_t *cred, char **machine);
  * \param[in]	ownership	Pool ownership information
  * \param[in]	acl		Pool ACL
  * \param[out]	capas		Capability bits for this user
- * \param[out]  machine		Hostname of the machine that generated the credential.
  *
  * \return	0		Success
  *		-DER_INVAL	Invalid input

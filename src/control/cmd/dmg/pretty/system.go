@@ -193,7 +193,7 @@ func printSystemCleanupRespVerbose(out io.Writer, resp *control.SystemCleanupRes
 	var table []txtfmt.TableRow
 	for _, pool := range resp.Pools {
 		row := txtfmt.TableRow{
-			"Id":    pool.Id,
+			"Id":    pool.PoolID,
 			"Count": fmt.Sprintf("%d", pool.Count),
 		}
 		table = append(table, row)

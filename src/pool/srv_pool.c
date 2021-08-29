@@ -4777,7 +4777,7 @@ evict_iter_cb(daos_handle_t ih, d_iov_t *key, d_iov_t *val, void *varg)
 	if (arg->eia_machine) {
 		struct pool_hdl	*hdl = (struct pool_hdl *)val->iov_buf;
 
-		if (strncmp(arg->eia_machine, hdl->ph_machine, MAXHOSTNAMELEN) != 0) {
+		if (strncmp(arg->eia_machine, hdl->ph_machine, sizeof(hdl->ph_machine)) != 0) {
 			return 0;
 		}
 	}

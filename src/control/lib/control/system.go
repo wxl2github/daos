@@ -754,8 +754,8 @@ type SystemCleanupReq struct {
 }
 
 type CleanupCount struct {
-	Id    string `json:"Id"`    // Unique identifier
-	Count uint32 `json:"count"` // Number of pools reclaimed
+	PoolID string `json:"pool_id"` // Unique identifier
+	Count  uint32 `json:"count"`   // Number of pools reclaimed
 }
 
 // SystemCleanupResp contains the request response.
@@ -770,7 +770,7 @@ func (scr *SystemCleanupResp) Validate() (string, error) {
 	out := new(strings.Builder)
 
 	for i, p := range scr.Pools {
-		if p.Id == "" {
+		if p.PoolID == "" {
 			return "", errors.Errorf("pool with index %d has no Id", i)
 		}
 	}

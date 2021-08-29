@@ -865,7 +865,7 @@ func (svc *mgmtSvc) SystemErase(ctx context.Context, pbReq *mgmtpb.SystemEraseRe
 // with the machine.
 //
 func (svc *mgmtSvc) SystemCleanup(ctx context.Context, req *mgmtpb.SystemCleanupReq) (*mgmtpb.SystemCleanupResp, error) {
-	if err := svc.checkReplicaRequest(req); err != nil {
+	if err := svc.checkLeaderRequest(req); err != nil {
 		return nil, err
 	}
 	svc.log.Debugf("Received SystemCleanup RPC: %+v", req)
@@ -908,8 +908,8 @@ func (svc *mgmtSvc) SystemCleanup(ctx context.Context, req *mgmtpb.SystemCleanup
 		}
 		svc.log.Debugf("Response from pool evict in cleanup: %+v", res)
 		resp.Pools = append(resp.Pools, &mgmtpb.SystemCleanupResp_Pool{
-			Id:    evictReq.Id,
-			Count: uint32(res.Count),
+			PoolId: evictReq.Id,
+			Count:  uint32(res.Count),
 		})
 	}
 

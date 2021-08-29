@@ -259,10 +259,6 @@ func (cmd *systemCleanupCmd) Execute(_ []string) (errOut error) {
 		errOut = errors.Wrap(errOut, "system cleanup failed")
 	}()
 
-	if cmd.config == nil {
-		return errors.New("no configuration loaded")
-	}
-
 	ctx := context.Background()
 	req := new(control.SystemCleanupReq)
 	req.SetSystem(cmd.config.SystemName)
