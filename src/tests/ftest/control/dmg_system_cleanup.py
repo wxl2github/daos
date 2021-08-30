@@ -4,11 +4,10 @@
 
   SPDX-License-Identifier: BSD-2-Clause-Patent
 """
-from apricot import TestWithServers
 from avocado.core.exceptions import TestFail
-from command_utils import CommandFailure
-from general_utils import DaosTestError
 from pydaos.raw import (DaosApiError, DaosPool)
+from general_utils import DaosTestError
+from apricot import TestWithServers
 
 
 class DmgSystemCleanupTest(TestWithServers):
@@ -45,14 +44,14 @@ class DmgSystemCleanupTest(TestWithServers):
             self.container.append(self.get_container(self.pool[-1]))
 
         # Create 5 more connections to each pool
-        self.pool_handles = []
+        pool_handles = []
         for pool in self.pool:
             for _ in range(5):
                 handle = self.get_pool(create=False, connect=False)
                 handle.pool = DaosPool(self.context)
                 handle.uuid = pool.uuid
-                connected = handle.connect(2)
-                self.pool_handles.append(handle)
+                handle.connect(2)
+                pool_handles.append(handle)
 
         # Check to make sure we can access the pool
         try:
@@ -60,7 +59,7 @@ class DmgSystemCleanupTest(TestWithServers):
                 self.container[i].get_params(self)
                 self.container[i].write_objects()
         except (DaosApiError, DaosTestError) as error:
-                self.fail("Unable to write container #{}: {}".format(i, error))
+            self.fail("Unable to write container #{}: {}".format(i, error))
 
         # Call dmg system cleanup on the host and create cleaned pool list.
         dmg_cmd = self.get_dmg_command()
@@ -68,15 +67,15 @@ class DmgSystemCleanupTest(TestWithServers):
 
         # Build list of pools and how many handles were cleaned (should be 6 each)
         actual_handle_counts = dict()
-        for r in result["response"]["results"]:
-            if r["status"] == 0:
-                actual_handle_counts[r["pool_id"].lower()] = r["count"]
+        for res in result["response"]["results"]:
+            if res["status"] == 0:
+                actual_handle_counts[res["pool_id"].lower()] = res["count"]
         # Attempt to access the pool again (should fail)
         for i in range(2):
             try:
                 self.container[i].write_objects()
             except (DaosApiError, DaosTestError, TestFail) as error:
-                self.log.info("Unable to write container #{}: as expected {}".format(i, error))
+                self.log.info("Unable to write container #%d: as expected %s", i, error)
             else:
                 self.fail("Wrote to container #{} when it should have failed: {}".format(i, error))
 
@@ -91,9 +90,9 @@ class DmgSystemCleanupTest(TestWithServers):
         self.container = []
 
         # Compare results
-        self.assertEqual(len(expected_handle_count),len(actual_handle_counts), "Cleaned up handles does not match the expected amount.")
+        self.assertEqual(len(expected_handle_count), len(actual_handle_counts), "Cleaned up handles does not match the expected amount.")
         for k in expected_handle_count:
-            self.assertEqual(expected_handle_count[k], actual_handle_counts[k], "Count for {} is not equal: expected {}, actual {}".format(k,expected_handle_count[k],actual_handle_counts[k]))
+            self.assertEqual(expected_handle_count[k], actual_handle_counts[k], "Count for {} is not equal: expected {}, actual {}".format(k, expected_handle_count[k], actual_handle_counts[k]))
 
         # Ensure that our set of expected and actual pools are the same
         self.log.info("Test passed!")
