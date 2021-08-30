@@ -874,7 +874,7 @@ func (svc *mgmtSvc) SystemCleanup(ctx context.Context, req *mgmtpb.SystemCleanup
 		return nil, errors.New("SystemCleanup requires a machine name.")
 	}
 
-	psList, err := svc.sysdb.PoolServiceList()
+	psList, err := svc.sysdb.PoolServiceList(true)
 	if err != nil {
 		return nil, err
 	}
