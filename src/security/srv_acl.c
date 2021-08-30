@@ -525,13 +525,14 @@ get_sec_origin_for_token(Auth__Token *token, char **machine)
 	if (rc != 0)
 		return rc;
 
-	if (authsys->machinename) {
-		machine_size = strnlen(authsys->machinename, MAXHOSTNAMELEN);
-	} else {
+	if (authsys->machinename == protobuf_c_empty_string) {
 		D_ERROR("Malformed AuthSys token missing machinename");
 		rc = -DER_INVAL;
 		goto out;
 	}
+
+	// This should allow us to catch if we're truncating the string.
+	machine_size = strnlen(authsys->machinename, MAXHOSTNAMELEN+1);
 
 	if (machine_size > MAXHOSTNAMELEN) {
 		D_ERROR("hostname provided by the agent is too large");

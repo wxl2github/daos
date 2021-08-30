@@ -32,6 +32,7 @@ char *ds_sec_server_socket_path = "/fake/socket/path";
 #define TEST_USER	"myuser@"
 #define TEST_GROUP	"mygroup@"
 #define TEST_HOST	"testhost"
+#define LONG_HOST	"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 
 /*
  * Test helper functions
@@ -52,7 +53,10 @@ create_valid_auth_token(const char *user, const char *grp,
 	auth__sys__init(authsys);
 	D_STRNDUP(authsys->user, user, DAOS_ACL_MAX_PRINCIPAL_LEN);
 	D_STRNDUP(authsys->group, grp, DAOS_ACL_MAX_PRINCIPAL_LEN);
-	D_STRNDUP(authsys->machinename, machine, MAXHOSTNAMELEN);
+	if (machine)
+		D_STRNDUP(authsys->machinename, machine, MAXHOSTNAMELEN+1);
+	else
+		authsys->machinename = NULL;
 
 	if (num_grps > 0) {
 		size_t i;
@@ -2062,6 +2066,86 @@ test_get_admin_cont_capas(void **state)
 			 CONT_CAPAS_ALL);
 }
 
+static void
+test_origin_null_cred(void **state)
+{
+	char *origin;
+
+	assert_rc_equal(ds_sec_pool_get_origin(NULL, &origin),
+			-DER_INVAL);
+}
+
+static void
+test_origin_null_machine_ptr(void **state)
+{
+	d_iov_t cred;
+
+	init_default_cred(&cred);
+
+	assert_rc_equal(ds_sec_pool_get_origin(&cred, NULL),
+			-DER_INVAL);
+
+	daos_iov_free(&cred);
+}
+
+static void
+test_origin_empty_cred(void **state)
+{
+	char *machine;
+	d_iov_t cred;
+
+	d_iov_set(&cred, NULL, 0);
+
+	assert_rc_equal(ds_sec_pool_get_origin(&cred, &machine),
+			-DER_INVAL);
+}
+
+static void
+test_origin_empty_origin(void **state)
+{
+	char *machine;
+	d_iov_t cred;
+
+	init_valid_cred(&cred, TEST_USER, TEST_GROUP, NULL, 0,
+			NULL);
+
+	assert_rc_equal(ds_sec_pool_get_origin(&cred, &machine),
+			-DER_INVAL);
+
+	daos_iov_free(&cred);
+}
+
+static void
+test_origin_long_origin(void **state)
+{
+	char *machine;
+	d_iov_t cred;
+
+	init_valid_cred(&cred, TEST_USER, TEST_GROUP, NULL, 0,
+			LONG_HOST);
+
+	assert_rc_equal(ds_sec_pool_get_origin(&cred, &machine),
+			-DER_INVAL);
+
+	daos_iov_free(&cred);
+}
+
+static void
+test_origin_valid_origin(void **state)
+{
+	char *machine;
+	d_iov_t cred;
+
+	init_valid_cred(&cred, TEST_USER, TEST_GROUP, NULL, 0,
+			TEST_HOST);
+
+	assert_rc_equal(ds_sec_pool_get_origin(&cred, &machine),
+			0);
+
+	D_FREE(machine);
+	daos_iov_free(&cred);
+}
+
 static int
 teardown_tests(void **state)
 {
@@ -2145,6 +2229,13 @@ main(void)
 		cmocka_unit_test(test_cont_can_read_data),
 		cmocka_unit_test(test_get_rebuild_cont_capas),
 		cmocka_unit_test(test_get_admin_cont_capas),
+		ACL_UTEST(test_origin_null_cred),
+		ACL_UTEST(test_origin_null_machine_ptr),
+		ACL_UTEST(test_origin_empty_cred),
+		ACL_UTEST(test_origin_empty_origin),
+		ACL_UTEST(test_origin_long_origin),
+		ACL_UTEST(test_origin_valid_origin),
+
 	};
 
 	return cmocka_run_group_tests_name("security_srv_acl", tests, NULL,

@@ -874,10 +874,6 @@ func (svc *mgmtSvc) SystemCleanup(ctx context.Context, req *mgmtpb.SystemCleanup
 		return nil, errors.New("SystemCleanup requires a machine name.")
 	}
 
-	if len(req.Machine) > 64 {
-		return nil, errors.New("Machine Name must be 64 characters or less.")
-	}
-
 	psList, err := svc.sysdb.PoolServiceList()
 	if err != nil {
 		return nil, err
