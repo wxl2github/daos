@@ -799,19 +799,26 @@ class DmgCommand(DmgCommandBase):
             dict: dictionary of output in JSON format
         """
         # Sample output:
-        #{
         #  "response": {
-        #    "status": 0,
-        #    "pools": [
+        #    "results": [
         #      {
-        #        "Id": "e21883a7-9803-430e-8758-87d853b06fb3",
-        #        "count": 10
+        #        "status": 0,
+        #        "msg": "",
+        #        "pool_id": "591ab37d-9efe-4b90-a102-afce50adb8cd",
+        #        "count": 6
+        #      },
+        #      {
+        #        "status": 0,
+        #        "msg": "",
+        #        "pool_id": "168824c4-0000-41e1-a93c-6013a12ae53f",
+        #        "count": 6
         #      }
         #    ]
         #  },
         #  "error": null,
         #  "status": 0
         #}
+
         return self._get_json_result(
             ("system", "cleanup"), machinename=machinename, verbose=verbose)
 

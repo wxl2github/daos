@@ -56,7 +56,6 @@ class DmgSystemCleanupTest(TestWithServers):
         # Check to make sure we can access the pool
         try:
             for i in range(2):
-                self.container[i].get_params(self)
                 self.container[i].write_objects()
         except (DaosApiError, DaosTestError) as error:
             self.fail("Unable to write container #{}: {}".format(i, error))
@@ -74,10 +73,9 @@ class DmgSystemCleanupTest(TestWithServers):
         for i in range(2):
             try:
                 self.container[i].write_objects()
+                self.fail("Wrote to container #{} when it should have failed: {}".format(i, error))
             except (DaosApiError, DaosTestError, TestFail) as error:
                 self.log.info("Unable to write container #%d: as expected %s", i, error)
-            else:
-                self.fail("Wrote to container #{} when it should have failed: {}".format(i, error))
 
         # Build a list of pool IDs and counts (6) to compare against
         # our cleanup results.
@@ -85,7 +83,7 @@ class DmgSystemCleanupTest(TestWithServers):
         for pool in self.pool:
             expected_count[pool.uuid.lower()] = 6
 
-        # Clear pool and containter list to avoid trying to destroy them.
+        # Clear pool and container list to avoid trying to destroy them.
         self.pool = []
         self.container = []
 
