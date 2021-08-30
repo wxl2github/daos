@@ -2071,7 +2071,7 @@ test_origin_null_cred(void **state)
 {
 	char *origin;
 
-	assert_rc_equal(ds_sec_pool_get_origin(NULL, &origin),
+	assert_rc_equal(ds_sec_cred_get_origin(NULL, &origin),
 			-DER_INVAL);
 }
 
@@ -2082,7 +2082,7 @@ test_origin_null_machine_ptr(void **state)
 
 	init_default_cred(&cred);
 
-	assert_rc_equal(ds_sec_pool_get_origin(&cred, NULL),
+	assert_rc_equal(ds_sec_cred_get_origin(&cred, NULL),
 			-DER_INVAL);
 
 	daos_iov_free(&cred);
@@ -2096,7 +2096,7 @@ test_origin_empty_cred(void **state)
 
 	d_iov_set(&cred, NULL, 0);
 
-	assert_rc_equal(ds_sec_pool_get_origin(&cred, &machine),
+	assert_rc_equal(ds_sec_cred_get_origin(&cred, &machine),
 			-DER_INVAL);
 }
 
@@ -2109,7 +2109,7 @@ test_origin_empty_origin(void **state)
 	init_valid_cred(&cred, TEST_USER, TEST_GROUP, NULL, 0,
 			NULL);
 
-	assert_rc_equal(ds_sec_pool_get_origin(&cred, &machine),
+	assert_rc_equal(ds_sec_cred_get_origin(&cred, &machine),
 			-DER_INVAL);
 
 	daos_iov_free(&cred);
@@ -2124,7 +2124,7 @@ test_origin_long_origin(void **state)
 	init_valid_cred(&cred, TEST_USER, TEST_GROUP, NULL, 0,
 			LONG_HOST);
 
-	assert_rc_equal(ds_sec_pool_get_origin(&cred, &machine),
+	assert_rc_equal(ds_sec_cred_get_origin(&cred, &machine),
 			-DER_INVAL);
 
 	daos_iov_free(&cred);
@@ -2139,7 +2139,7 @@ test_origin_valid_origin(void **state)
 	init_valid_cred(&cred, TEST_USER, TEST_GROUP, NULL, 0,
 			TEST_HOST);
 
-	assert_rc_equal(ds_sec_pool_get_origin(&cred, &machine),
+	assert_rc_equal(ds_sec_cred_get_origin(&cred, &machine),
 			0);
 
 	D_FREE(machine);

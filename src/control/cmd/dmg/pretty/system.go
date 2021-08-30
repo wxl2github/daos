@@ -187,13 +187,13 @@ func printSystemCleanupRespVerbose(out io.Writer, resp *control.SystemCleanupRes
 		return nil
 	}
 
-	titles := []string{"Id", "Handles Revoked"}
+	titles := []string{"Pool", "Handles Revoked"}
 	formatter := txtfmt.NewTableFormatter(titles...)
 
 	var table []txtfmt.TableRow
 	for _, r := range resp.Results {
 		row := txtfmt.TableRow{
-			"Id":              r.PoolID,
+			"Pool":            r.PoolID,
 			"Handles Revoked": fmt.Sprintf("%d", r.Count),
 		}
 		table = append(table, row)
@@ -207,12 +207,10 @@ func printSystemCleanupRespVerbose(out io.Writer, resp *control.SystemCleanupRes
 // PrintSystemCleanupResponse generates a human-readable representation of the
 // supplied SystemCleanupResp struct and writes it to the supplied io.Writer.
 func PrintSystemCleanupResponse(out, outErr io.Writer, resp *control.SystemCleanupResp, verbose bool) error {
-	warn, err := resp.Validate()
+	err := resp.Errors()
+
 	if err != nil {
-		return err
-	}
-	if warn != "" {
-		fmt.Fprintln(outErr, warn)
+		fmt.Fprintln(outErr, err.Error())
 	}
 
 	if len(resp.Results) == 0 {

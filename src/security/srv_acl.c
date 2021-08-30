@@ -531,7 +531,7 @@ get_sec_origin_for_token(Auth__Token *token, char **machine)
 		goto out;
 	}
 
-	// This should allow us to catch if we're truncating the string.
+	/* This should allow us to catch if we're truncating the string */
 	machine_size = strnlen(authsys->machinename, MAXHOSTNAMELEN+1);
 
 	if (machine_size > MAXHOSTNAMELEN) {
@@ -555,7 +555,7 @@ out:
 }
 
 int
-ds_sec_pool_get_origin(d_iov_t *cred, char **machine)
+ds_sec_cred_get_origin(d_iov_t *cred, char **machine)
 {
 	struct drpc_alloc	alloc = PROTO_ALLOCATOR_INIT(alloc);
 	int		rc;

@@ -767,10 +767,9 @@ type SystemCleanupResp struct {
 	Results []*CleanupResult `json:"results"`
 }
 
-// Validate returns error if response contents are unexpected, string of
-// warnings if handle cleanups have failed on specific pools or nil values
-// if contents are expected.
-func (scr *SystemCleanupResp) Validate() (string, error) {
+// Errors returns a single error combining all error messages associated with a
+// system cleanup response.
+func (scr *SystemCleanupResp) Errors() error {
 	out := new(strings.Builder)
 
 	for _, r := range scr.Results {
@@ -779,28 +778,14 @@ func (scr *SystemCleanupResp) Validate() (string, error) {
 		}
 	}
 
-	return out.String(), nil
-}
+	if out.String() != "" {
+		return errors.New(out.String())
+	}
 
-// Errors returns a single error combining all error messages associated with a
-// system cleanup response.
-func (scr *SystemCleanupResp) Errors() error {
-	warn, err := scr.Validate()
-	if err != nil {
-		return err
-	}
-	if warn != "" {
-		return errors.New(warn)
-	}
 	return nil
 }
 
 // SystemCleanup requests resources associated with a machine name be cleanedup.
-//
-// Handles MS requests sent from management client app e.g. 'dmg' and calls into
-// mgmt_system.go method of the same name. The triggered method uses the control
-// API to fanout to (selection or all) gRPC servers listening as part of the
-// DAOS system and retrieve results from the selected ranks hosted there.
 func SystemCleanup(ctx context.Context, rpcClient UnaryInvoker, req *SystemCleanupReq) (*SystemCleanupResp, error) {
 	if req == nil {
 		return nil, errors.Errorf("nil %T request", req)

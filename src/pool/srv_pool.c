@@ -2103,7 +2103,7 @@ ds_pool_connect_handler(crt_rpc_t *rpc)
 		D_GOTO(out_map_version, rc);
 	}
 
-	rc = ds_sec_pool_get_origin(&in->pci_cred, &machine);
+	rc = ds_sec_cred_get_origin(&in->pci_cred, &machine);
 
 	if (rc != 0) {
 		D_ERROR(DF_UUID": unable to retrieve origin error: "DF_RC"\n",
@@ -4978,7 +4978,7 @@ out_svc:
 	pool_svc_put_leader(svc);
 out:
 	out->pvo_op.po_rc = rc;
-	out->pvo_count = n_hdl_uuids;
+	out->pvo_n_hdls_evicted = n_hdl_uuids;
 	D_DEBUG(DF_DSMS, DF_UUID": replying rpc %p: "DF_RC"\n",
 		DP_UUID(in->pvi_op.pi_uuid), rpc, DP_RC(rc));
 	crt_reply_send(rpc);
@@ -5069,7 +5069,7 @@ rechoose:
 		D_ERROR(DF_UUID": pool destroy failed to evict handles, "
 			"rc: %d\n", DP_UUID(pool_uuid), rc);
 	if (count)
-		*count = out->pvo_count;
+		*count = out->pvo_n_hdls_evicted;
 
 	crt_req_decref(rpc);
 out_client:

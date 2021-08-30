@@ -66,10 +66,10 @@ class DmgSystemCleanupTest(TestWithServers):
         result = dmg_cmd.system_cleanup(self.hostlist_servers[0], verbose=True)
 
         # Build list of pools and how many handles were cleaned (should be 6 each)
-        actual_handle_counts = dict()
+        actual_counts = dict()
         for res in result["response"]["results"]:
             if res["status"] == 0:
-                actual_handle_counts[res["pool_id"].lower()] = res["count"]
+                actual_counts[res["pool_id"].lower()] = res["count"]
         # Attempt to access the pool again (should fail)
         for i in range(2):
             try:
@@ -81,18 +81,21 @@ class DmgSystemCleanupTest(TestWithServers):
 
         # Build a list of pool IDs and counts (6) to compare against
         # our cleanup results.
-        expected_handle_count = dict()
+        expected_count = dict()
         for pool in self.pool:
-            expected_handle_count[pool.uuid.lower()] = 6
+            expected_count[pool.uuid.lower()] = 6
 
-        # Clear pool and container list to avoid trying to destroy them.
+        # Clear pool and containter list to avoid trying to destroy them.
         self.pool = []
         self.container = []
 
         # Compare results
-        self.assertEqual(len(expected_handle_count), len(actual_handle_counts), "Cleaned up handles does not match the expected amount.")
-        for k in expected_handle_count:
-            self.assertEqual(expected_handle_count[k], actual_handle_counts[k], "Count for {} is not equal: expected {}, actual {}".format(k, expected_handle_count[k], actual_handle_counts[k]))
+        self.assertEqual(len(expected_count), len(actual_counts),\
+                "Cleaned up handles does not match the expected amount.")
+        for key, val in expected_count.items():
+            self.assertEqual(val, actual_counts[key],\
+                "Count for {} is not equal: expected {}, actual {}"\
+                .format(key, val, actual_counts[key]))
 
         # Ensure that our set of expected and actual pools are the same
         self.log.info("Test passed!")

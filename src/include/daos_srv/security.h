@@ -57,7 +57,7 @@ ds_sec_alloc_default_daos_cont_acl(void);
  *		-DER_PROTO	Unexpected or corrupt payload from control plane
  */
 int
-ds_sec_pool_get_origin(d_iov_t *cred, char **machine);
+ds_sec_cred_get_origin(d_iov_t *cred, char **machine);
 
 /**
  * Derive the pool security capabilities for the given user credential, using
