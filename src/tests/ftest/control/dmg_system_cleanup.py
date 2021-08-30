@@ -5,8 +5,7 @@
   SPDX-License-Identifier: BSD-2-Clause-Patent
 """
 from avocado.core.exceptions import TestFail
-from pydaos.raw import (DaosApiError, DaosPool)
-from general_utils import DaosTestError
+from pydaos.raw import DaosPool
 from apricot import TestWithServers
 
 
@@ -57,7 +56,7 @@ class DmgSystemCleanupTest(TestWithServers):
         try:
             for i in range(2):
                 self.container[i].write_objects()
-        except (DaosApiError, DaosTestError) as error:
+        except TestFail as error:
             self.fail("Unable to write container #{}: {}".format(i, error))
 
         # Call dmg system cleanup on the host and create cleaned pool list.
@@ -74,26 +73,19 @@ class DmgSystemCleanupTest(TestWithServers):
             try:
                 self.container[i].write_objects()
                 self.fail("Wrote to container #{} when it should have failed: {}".format(i, error))
-            except (DaosApiError, DaosTestError, TestFail) as error:
+            except TestFail as error:
                 self.log.info("Unable to write container #%d: as expected %s", i, error)
 
         # Build a list of pool IDs and counts (6) to compare against
         # our cleanup results.
-        expected_count = dict()
-        for pool in self.pool:
-            expected_count[pool.uuid.lower()] = 6
+        expected_count = {pool.uuid.lower(): 6 for pool in self.pool}
 
         # Clear pool and container list to avoid trying to destroy them.
         self.pool = []
         self.container = []
 
         # Compare results
-        self.assertEqual(len(expected_count), len(actual_counts),\
-                "Cleaned up handles does not match the expected amount.")
-        for key, val in expected_count.items():
-            self.assertEqual(val, actual_counts[key],\
-                "Count for {} is not equal: expected {}, actual {}"\
-                .format(key, val, actual_counts[key]))
+        self.assertDictEqual(expected_count, actual_counts,
+                             "Cleaned up handles do not match the expected amount.")
 
-        # Ensure that our set of expected and actual pools are the same
         self.log.info("Test passed!")
