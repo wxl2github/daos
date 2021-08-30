@@ -19,8 +19,10 @@ class DmgSystemCleanupTest(TestWithServers):
     Test step:
     1. Create 2 pools.
     2. Create a container in each pool.
-    3. Call dmg system cleanup host.
-    4. Call daos pool list-cont on each pool. Each should fail with -1012.
+    3. Write to each container to ensure connections are working.
+    4. Call dmg system cleanup host.
+    5. Write to each container again to ensure they fail
+    6. Check that cleaned up handles match expected counts.
 
     :avocado: recursive
     """
