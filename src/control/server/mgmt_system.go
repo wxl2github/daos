@@ -898,7 +898,9 @@ func (svc *mgmtSvc) SystemCleanup(ctx context.Context, req *mgmtpb.SystemCleanup
 
 		res := &mgmtpb.PoolEvictResp{}
 		if err = proto.Unmarshal(dresp.Body, res); err != nil {
-			return nil, errors.Wrap(err, "unmarshal PoolEvict response")
+			res.Status = int32(drpc.DaosIOInvalid)
+			errmsg = errors.Wrap(err, "unmarshal PoolEvict response").Error()
+			res.Count = 0
 		}
 
 		if res.Status != int32(drpc.DaosSuccess) {
