@@ -173,12 +173,12 @@ test_cond_helper(test_arg_t *arg, int rf)
 
 	rc = dfs_umount(dfs);
 	assert_int_equal(rc, 0);
-	rc = daos_cont_close(coh, NULL);
+	rc = dfs_cont_close(coh, NULL);
 	assert_rc_equal(rc, 0);
 
 	MPI_Barrier(MPI_COMM_WORLD);
 	if (arg->myrank == 0) {
-		rc = daos_cont_destroy(arg->pool.poh, cuuid, 1, NULL);
+		rc = dfs_cont_destroy(arg->pool.poh, cuuid, 1, NULL);
 		assert_rc_equal(rc, 0);
 		printf("Destroyed DFS Container "DF_UUIDF"\n",
 		       DP_UUID(cuuid));
@@ -670,8 +670,7 @@ dfs_test_cont_atomic(void **state)
 		print_message("one rank Created POSIX Container "DF_UUIDF"\n",
 			      DP_UUID(cuuid));
 
-	rc = daos_cont_open(arg->pool.poh, cuuid, DAOS_COO_RW,
-			    &coh, &co_info, NULL);
+	rc = dfs_cont_open(arg->pool.poh, cuuid, DAOS_COO_RW, &coh, &co_info, NULL);
 	assert_int_equal(rc, 0);
 
 	rc = dfs_mount(arg->pool.poh, coh, O_RDWR, &dfs);
@@ -679,12 +678,12 @@ dfs_test_cont_atomic(void **state)
 
 	rc = dfs_umount(dfs);
 	assert_int_equal(rc, 0);
-	rc = daos_cont_close(coh, NULL);
+	rc = dfs_cont_close(coh, NULL);
 	assert_int_equal(rc, 0);
 
 	MPI_Barrier(MPI_COMM_WORLD);
 	if (arg->myrank == 0) {
-		rc = daos_cont_destroy(arg->pool.poh, cuuid, 1, NULL);
+		rc = dfs_cont_destroy(arg->pool.poh, cuuid, 1, NULL);
 		assert_int_equal(rc, 0);
 		print_message("Destroyed POSIX Container "DF_UUIDF"\n",
 			      DP_UUID(cuuid));
@@ -817,12 +816,12 @@ file_atomicity_test_helper(test_arg_t *arg, int rf)
 
 	rc = dfs_umount(dfs);
 	assert_int_equal(rc, 0);
-	rc = daos_cont_close(coh, NULL);
+	rc = dfs_cont_close(coh, NULL);
 	assert_rc_equal(rc, 0);
 
 	MPI_Barrier(MPI_COMM_WORLD);
 	if (arg->myrank == 0) {
-		rc = daos_cont_destroy(arg->pool.poh, cuuid, 1, NULL);
+		rc = dfs_cont_destroy(arg->pool.poh, cuuid, 1, NULL);
 		assert_rc_equal(rc, 0);
 		printf("Destroyed DFS Container "DF_UUIDF"\n",
 		       DP_UUID(cuuid));
@@ -903,12 +902,12 @@ dfs_teardown(void **state)
 
 	rc = dfs_umount(dfs_mt);
 	assert_int_equal(rc, 0);
-	rc = daos_cont_close(co_hdl, NULL);
+	rc = dfs_cont_close(co_hdl, NULL);
 	assert_rc_equal(rc, 0);
 
 	MPI_Barrier(MPI_COMM_WORLD);
 	if (arg->myrank == 0) {
-		rc = daos_cont_destroy(arg->pool.poh, co_uuid, 1, NULL);
+		rc = dfs_cont_destroy(arg->pool.poh, co_uuid, 1, NULL);
 		assert_rc_equal(rc, 0);
 		printf("Destroyed DFS Container "DF_UUIDF"\n",
 		       DP_UUID(co_uuid));
