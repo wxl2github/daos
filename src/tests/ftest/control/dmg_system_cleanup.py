@@ -85,7 +85,7 @@ class DmgSystemCleanupTest(TestWithServers):
         for pool in self.pool:
             expected_handle_count[pool.uuid.lower()] = 6
 
-        # Clear pool and containter list to avoid trying to destroy them.
+        # Clear pool and container list to avoid trying to destroy them.
         self.pool = []
         self.container = []
 
