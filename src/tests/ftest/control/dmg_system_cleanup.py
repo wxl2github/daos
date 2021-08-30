@@ -66,8 +66,9 @@ class DmgSystemCleanupTest(TestWithServers):
 
         # Build list of pools and how many handles were cleaned (should be 6 each)
         actual_handle_counts = dict()
-        for pool in result["response"]["pools"]:
-            actual_handle_counts[pool["pool_id"].lower()] = pool["count"]
+        for r in result["response"]["results"]:
+            if r["status"] == 0:
+                actual_handle_counts[r["pool_id"].lower()] = r["count"]
         # Attempt to access the pool again (should fail)
         for i in range(2):
             try:

@@ -182,7 +182,7 @@ func PrintSystemStopResponse(out, outErr io.Writer, resp *control.SystemStopResp
 }
 
 func printSystemCleanupRespVerbose(out io.Writer, resp *control.SystemCleanupResp) error {
-	if len(resp.Pools) == 0 {
+	if len(resp.Results) == 0 {
 		fmt.Fprintln(out, "no handles cleaned up")
 		return nil
 	}
@@ -191,10 +191,10 @@ func printSystemCleanupRespVerbose(out io.Writer, resp *control.SystemCleanupRes
 	formatter := txtfmt.NewTableFormatter(titles...)
 
 	var table []txtfmt.TableRow
-	for _, pool := range resp.Pools {
+	for _, r := range resp.Results {
 		row := txtfmt.TableRow{
-			"Id":              pool.PoolID,
-			"Handles Revoked": fmt.Sprintf("%d", pool.Count),
+			"Id":              r.PoolID,
+			"Handles Revoked": fmt.Sprintf("%d", r.Count),
 		}
 		table = append(table, row)
 	}
@@ -215,7 +215,7 @@ func PrintSystemCleanupResponse(out, outErr io.Writer, resp *control.SystemClean
 		fmt.Fprintln(outErr, warn)
 	}
 
-	if len(resp.Pools) == 0 {
+	if len(resp.Results) == 0 {
 		fmt.Fprintln(out, "No handles cleaned up")
 		return nil
 	}

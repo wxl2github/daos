@@ -9,6 +9,7 @@ package control
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net"
 	"strings"
 	"time"
@@ -23,6 +24,7 @@ import (
 	ctlpb "github.com/daos-stack/daos/src/control/common/proto/ctl"
 	mgmtpb "github.com/daos-stack/daos/src/control/common/proto/mgmt"
 	sharedpb "github.com/daos-stack/daos/src/control/common/proto/shared"
+	"github.com/daos-stack/daos/src/control/drpc"
 	"github.com/daos-stack/daos/src/control/lib/hostlist"
 	"github.com/daos-stack/daos/src/control/system"
 )
@@ -753,25 +755,27 @@ type SystemCleanupReq struct {
 	Machine string `json:"machine"`
 }
 
-type CleanupCount struct {
+type CleanupResult struct {
+	Status int32  `json:"status"`  // Status returned from this specific evict call
+	Msg    string `json:"msg"`     // Error message if Status is not Success
 	PoolID string `json:"pool_id"` // Unique identifier
 	Count  uint32 `json:"count"`   // Number of pools reclaimed
 }
 
 // SystemCleanupResp contains the request response.
 type SystemCleanupResp struct {
-	Status int32           `json:"status"`
-	Pools  []*CleanupCount `json:"pools"`
+	Results []*CleanupResult `json:"results"`
 }
 
 // Validate returns error if response contents are unexpected, string of
-// warnings if pool queries have failed or nil values if contents are expected.
+// warnings if handle cleanups have failed on specific pools or nil values
+// if contents are expected.
 func (scr *SystemCleanupResp) Validate() (string, error) {
 	out := new(strings.Builder)
 
-	for i, p := range scr.Pools {
-		if p.PoolID == "" {
-			return "", errors.Errorf("pool with index %d has no Id", i)
+	for _, r := range scr.Results {
+		if r.Status != int32(drpc.DaosSuccess) {
+			fmt.Fprintf(out, "%s\n", r.Msg)
 		}
 	}
 
