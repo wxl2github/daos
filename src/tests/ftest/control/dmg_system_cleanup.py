@@ -7,7 +7,7 @@
 from avocado.core.exceptions import TestFail
 from pydaos.raw import DaosPool
 from apricot import TestWithServers
-
+from socket import gethostname
 
 class DmgSystemCleanupTest(TestWithServers):
     """Test Class Description:
@@ -35,6 +35,10 @@ class DmgSystemCleanupTest(TestWithServers):
         :avocado: tags=small,dmg
         :avocado: tags=control,dmg_system_cleanup
         """
+        # Print out where this is running
+        hostname = gethostname().split(".")[0]
+        self.log.info("Script is running on %s", hostname)
+
         # Create 2 pools and create a container in each pool.
         self.pool = []
         self.container = []
