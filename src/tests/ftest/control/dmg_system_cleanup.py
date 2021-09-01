@@ -72,7 +72,7 @@ class DmgSystemCleanupTest(TestWithServers):
         for i in range(2):
             try:
                 self.container[i].write_objects()
-                self.fail("Wrote to container #{} when it should have failed: {}".format(i, error))
+                self.fail("Wrote to container #{} when it should have failed:".format(i))
             except TestFail as error:
                 self.log.info("Unable to write container #%d: as expected %s", i, error)
 
