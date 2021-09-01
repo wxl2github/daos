@@ -57,11 +57,11 @@ class DmgSystemCleanupTest(TestWithServers):
             for i in range(2):
                 self.container[i].write_objects()
         except TestFail as error:
-            self.fail("Unable to write container #{}: {}".format(i, error))
+            self.fail("Unable to write container #{}: {}\n".format(i, error))
 
         # Call dmg system cleanup on the host and create cleaned pool list.
         dmg_cmd = self.get_dmg_command()
-        result = dmg_cmd.system_cleanup(self.hostlist_servers[0], verbose=True)
+        result = dmg_cmd.system_cleanup(self.agent_managers[0].hosts, verbose=True)
 
         # Build list of pools and how many handles were cleaned (should be 6 each)
         actual_counts = dict()
@@ -72,9 +72,9 @@ class DmgSystemCleanupTest(TestWithServers):
         for i in range(2):
             try:
                 self.container[i].write_objects()
-                self.fail("Wrote to container #{} when it should have failed:".format(i))
+                self.fail("Wrote to container #{} when it should have failed:\n".format(i))
             except TestFail as error:
-                self.log.info("Unable to write container #%d: as expected %s", i, error)
+                self.log.info("Unable to write container #%d: as expected %s\n", i, error)
 
         # Build a list of pool IDs and counts (6) to compare against
         # our cleanup results.
