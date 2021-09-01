@@ -2183,6 +2183,7 @@ ds_pool_connect_handler(crt_rpc_t *rpc)
 	hdl.ph_flags = in->pci_flags;
 	hdl.ph_sec_capas = sec_capas;
 	strncpy(hdl.ph_machine, machine, MAXHOSTNAMELEN);
+	D_DEBUG(DF_DSMS, "Connect from origin: %s", hdl.ph_machine);
 
 	nhandles++;
 	d_iov_set(&key, in->pci_op.pi_hdl, sizeof(uuid_t));
@@ -4759,6 +4760,9 @@ evict_iter_cb(daos_handle_t ih, d_iov_t *key, d_iov_t *val, void *varg)
 	/* If we specified a machine name as a filter check before we do the realloc */
 	if (arg->eia_machine) {
 		struct pool_hdl	*hdl = (struct pool_hdl *)val->iov_buf;
+		D_DEBUG(DB_MGMT,
+			DF_UUID": machine %s: handle_origin: %s\n", DP_UUID(hdl),
+			arg->eia_machine, hdl->ph_machine);
 
 		if (strncmp(arg->eia_machine, hdl->ph_machine, sizeof(hdl->ph_machine)) != 0) {
 			return 0;
@@ -5051,8 +5055,11 @@ rechoose:
 	if (rc != 0)
 		D_ERROR(DF_UUID": pool destroy failed to evict handles, "
 			"rc: %d\n", DP_UUID(pool_uuid), rc);
-	if (count)
+	if (count) {
+		D_DEBUG(DB_MGMT, DF_UUID": Count returned %d\n",
+			DP_UUID(pool_uuid), out->pvo_n_hdls_evicted);
 		*count = out->pvo_n_hdls_evicted;
+	}
 
 	crt_req_decref(rpc);
 out_client:
