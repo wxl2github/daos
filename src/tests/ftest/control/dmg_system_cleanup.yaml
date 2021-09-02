@@ -4,12 +4,6 @@ hosts:
 timeout: 600
 server_config:
     name: daos_server
-    servers:
-      0:
-        log_mask: DEBUG,tree=ERR,rpc=ERR,mem=ERR,daos=ERR
-        env_vars:
-          - DD_MASK=mgmt,dsms
-          - DD_SUBSYS=all
 pool:
     control_method: dmg
     scm_size: 1GB
