@@ -634,7 +634,7 @@ class DaosCommand(DaosCommandBase):
 
         return data
 
-    def filesystem_copy(self, src, dst):
+    def filesystem_copy(self, src, dst, preserve_props=None):
         """Copy a POSIX container or path to another POSIX container or path.
 
         Args:
@@ -642,6 +642,7 @@ class DaosCommand(DaosCommandBase):
                 daos:<pool>/<cont>/<path> or posix:<path>
             dst (str): The destination, formatted as
                 daos:<pool>/<cont>/<path> or posix:<path>
+            preserve_props (str): The filename to read or write container properties
 
         Returns:
             CmdResult: Object that contains exit status, stdout, and other
@@ -652,4 +653,4 @@ class DaosCommand(DaosCommandBase):
 
         """
         return self._get_result(
-            ("filesystem", "copy"), src=src, dst=dst)
+            ("filesystem", "copy"), src=src, dst=dst, preserve_props=preserve_props)
