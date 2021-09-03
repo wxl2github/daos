@@ -355,8 +355,10 @@ sched_ult2xs(int xs_type, int tgt_id)
 			       dss_sys_xs_nr;
 	case DSS_XS_SYS:
 		return 0;
-	case DSS_XS_DRPC:
+	case DSS_XS_SWIM:
 		return 1;
+	case DSS_XS_DRPC:
+		return 2;
 	case DSS_XS_VOS:
 		return DSS_MAIN_XS_ID(tgt_id);
 	default:
