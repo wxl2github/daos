@@ -2150,7 +2150,7 @@ class posix_tests():
         print(rc)
         assert rc.returncode == 0
 
-        # Now create a container uuid and do an object based copy.
+        # Now create a container and do an object based copy.
         # The daos command will create the target container on demand.
         container = str(uuid.uuid4())
         cmd = ['container',
@@ -2158,11 +2158,11 @@ class posix_tests():
                '--src',
                'daos://{}/{}'.format(self.pool.uuid, self.container),
                '--dst',
-               'daos://{}/{}'.format(self.pool.uuid, container)]
+               'daos://{}/{}'.format(self.pool.label, "cloned_cont")]
         rc = run_daos_cmd(self.conf, cmd)
         print(rc)
         assert rc.returncode == 0
-        destroy_container(self.conf, self.pool.id(), container)
+        destroy_container(self.conf, self.pool.id(), "cloned_cont")
 # pylint: enable=too-many-public-methods
 
 def run_posix_tests(server, conf, test=None):

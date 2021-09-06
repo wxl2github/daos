@@ -105,6 +105,7 @@ test_setup_pool_create(void **state, struct test_pool *ipool,
 		else
 			print_message("setup: created pool "DF_UUIDF"\n",
 				       DP_UUID(outpool->pool_uuid));
+		uuid_unparse(outpool->pool_uuid, outpool->pool_str);
 		if (rank_list)
 			d_rank_list_free(rank_list);
 	}
@@ -116,6 +117,7 @@ out:
 		if (!rc) {
 			MPI_Bcast(outpool->pool_uuid, 16,
 				  MPI_CHAR, 0, MPI_COMM_WORLD);
+			uuid_unparse(outpool->pool_uuid, outpool->pool_str);
 
 			/* TODO: Should we even be broadcasting this now? */
 			if (outpool->svc == NULL)
@@ -162,9 +164,9 @@ test_setup_pool_connect(void **state, struct test_pool *pool)
 					       &arg->pool.pool_info,
 					       NULL);
 		} else {
-			print_message("setup: connecting to pool "DF_UUID"\n",
-				      DP_UUID(arg->pool.pool_uuid));
-			rc = daos_pool_connect(arg->pool.pool_uuid, arg->group,
+			print_message("setup: connecting to pool %s\n",
+				      arg->pool.pool_str);
+			rc = daos_pool_connect(arg->pool.pool_str, arg->group,
 					       flags, &arg->pool.poh,
 					       &arg->pool.pool_info, NULL);
 		}
@@ -209,10 +211,9 @@ test_setup_cont_create(void **state, daos_prop_t *co_prop)
 	int rc = 0;
 
 	if (arg->myrank == 0) {
-		uuid_generate(arg->co_uuid);
 		print_message("setup: creating container "DF_UUIDF"\n",
 			      DP_UUID(arg->co_uuid));
-		rc = daos_cont_create(arg->pool.poh, arg->co_uuid, co_prop,
+		rc = daos_cont_create(arg->pool.poh, &arg->co_uuid, co_prop,
 				      NULL);
 		if (rc)
 			print_message("daos_cont_create failed, rc: %d\n", rc);
@@ -221,9 +222,11 @@ test_setup_cont_create(void **state, daos_prop_t *co_prop)
 	if (arg->multi_rank) {
 		MPI_Bcast(&rc, 1, MPI_INT, 0, MPI_COMM_WORLD);
 		/** broadcast container UUID */
-		if (!rc)
+		if (!rc) {
 			MPI_Bcast(arg->co_uuid, 16,
 				  MPI_CHAR, 0, MPI_COMM_WORLD);
+			uuid_unparse(arg->co_uuid, arg->co_str);
+		}
 	}
 	return rc;
 }
@@ -246,7 +249,7 @@ test_setup_cont_open(void **state)
 		} else {
 			print_message("setup: opening container "DF_UUID"\n",
 				      DP_UUID(arg->co_uuid));
-			rc = daos_cont_open(arg->pool.poh, arg->co_uuid,
+			rc = daos_cont_open(arg->pool.poh, arg->co_str,
 					    arg->cont_open_flags,
 					    &arg->coh, &arg->co_info, NULL);
 		}
@@ -402,7 +405,7 @@ pool_destroy_safe(test_arg_t *arg, struct test_pool *extpool)
 	poh = pool->poh;
 
 	if (daos_handle_is_inval(poh)) {
-		rc = daos_pool_connect(pool->pool_uuid, arg->group,
+		rc = daos_pool_connect(pool->pool_str, arg->group,
 				       DAOS_PC_RW,
 				       &poh, &pool->pool_info,
 				       NULL /* ev */);
@@ -474,7 +477,7 @@ test_teardown_cont(test_arg_t *arg)
 	int	rc = 0;
 
 	while (arg->myrank == 0) {
-		rc = daos_cont_destroy(arg->pool.poh, arg->co_uuid, 1,
+		rc = daos_cont_destroy(arg->pool.poh, arg->co_str, 1,
 				       NULL);
 		if (rc == -DER_BUSY) {
 			print_message("Container is busy, wait\n");
@@ -649,7 +652,7 @@ test_pool_get_info(test_arg_t *arg, daos_pool_info_t *pinfo)
 	int	   rc;
 
 	if (daos_handle_is_inval(arg->pool.poh)) {
-		rc = daos_pool_connect(arg->pool.pool_uuid, arg->group,
+		rc = daos_pool_connect(arg->pool.pool_str, arg->group,
 				       DAOS_PC_RW,
 				       &arg->pool.poh, pinfo,
 				       NULL /* ev */);

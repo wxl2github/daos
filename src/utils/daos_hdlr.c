@@ -41,6 +41,8 @@
 #define MAX_FILENAME 256
 #define OID_ARR_SIZE 8
 
+static char uuid_str[37];
+
 struct fs_copy_dirent {
 	dfs_obj_t *dir;
 	struct dirent ents[NUM_DIRENTS];
@@ -211,7 +213,9 @@ pool_get_prop_hdlr(struct cmd_args_s *ap)
 	assert(ap != NULL);
 	assert(ap->p_op == POOL_GET_PROP);
 
-	rc = daos_pool_connect(ap->p_uuid, ap->sysname, DAOS_PC_RO, &ap->pool, NULL, NULL);
+	uuid_unparse(ap->p_uuid, uuid_str);
+	rc = daos_pool_connect(uuid_str, ap->sysname, DAOS_PC_RO, &ap->pool,
+			       NULL, NULL);
 	if (rc != 0) {
 		fprintf(ap->errstream, "failed to connect to pool "DF_UUIDF": %s (%d)\n",
 			DP_UUID(ap->p_uuid), d_errdesc(rc), rc);
@@ -265,7 +269,8 @@ pool_set_attr_hdlr(struct cmd_args_s *ap)
 		D_GOTO(out, rc = -DER_INVAL);
 	}
 
-	rc = daos_pool_connect(ap->p_uuid, ap->sysname,
+	uuid_unparse(ap->p_uuid, uuid_str);
+	rc = daos_pool_connect(uuid_str, ap->sysname,
 			       DAOS_PC_RW, &ap->pool,
 			       NULL /* info */, NULL /* ev */);
 	if (rc != 0) {
@@ -304,8 +309,8 @@ out:
 int
 pool_del_attr_hdlr(struct cmd_args_s *ap)
 {
-	int rc = 0;
-	int rc2;
+	int	rc = 0;
+	int	rc2;
 
 	assert(ap != NULL);
 	assert(ap->p_op == POOL_DEL_ATTR);
@@ -315,7 +320,8 @@ pool_del_attr_hdlr(struct cmd_args_s *ap)
 		D_GOTO(out, rc = -DER_INVAL);
 	}
 
-	rc = daos_pool_connect(ap->p_uuid, ap->sysname,
+	uuid_unparse(ap->p_uuid, uuid_str);
+	rc = daos_pool_connect(uuid_str, ap->sysname,
 			       DAOS_PC_RW, &ap->pool,
 			       NULL /* info */, NULL /* ev */);
 	if (rc != 0) {
@@ -364,7 +370,8 @@ pool_get_attr_hdlr(struct cmd_args_s *ap)
 		D_GOTO(out, rc = -DER_INVAL);
 	}
 
-	rc = daos_pool_connect(ap->p_uuid, ap->sysname,
+	uuid_unparse(ap->p_uuid, uuid_str);
+	rc = daos_pool_connect(uuid_str, ap->sysname,
 			       DAOS_PC_RO, &ap->pool,
 			       NULL /* info */, NULL /* ev */);
 	if (rc != 0) {
@@ -441,7 +448,8 @@ pool_list_attrs_hdlr(struct cmd_args_s *ap)
 	assert(ap != NULL);
 	assert(ap->p_op == POOL_LIST_ATTRS);
 
-	rc = daos_pool_connect(ap->p_uuid, ap->sysname,
+	uuid_unparse(ap->p_uuid, uuid_str);
+	rc = daos_pool_connect(uuid_str, ap->sysname,
 			       DAOS_PC_RO, &ap->pool,
 			       NULL /* info */, NULL /* ev */);
 	if (rc != 0) {
@@ -524,7 +532,8 @@ pool_list_containers_hdlr(struct cmd_args_s *ap)
 	assert(ap != NULL);
 	assert(ap->p_op == POOL_LIST_CONTAINERS);
 
-	rc = daos_pool_connect(ap->p_uuid, ap->sysname,
+	uuid_unparse(ap->p_uuid, uuid_str);
+	rc = daos_pool_connect(uuid_str, ap->sysname,
 			       DAOS_PC_RO, &ap->pool,
 			       NULL /* info */, NULL /* ev */);
 	if (rc != 0) {
@@ -613,7 +622,8 @@ pool_query_hdlr(struct cmd_args_s *ap)
 	assert(ap != NULL);
 	assert(ap->p_op == POOL_QUERY);
 
-	rc = daos_pool_connect(ap->p_uuid, ap->sysname,
+	uuid_unparse(ap->p_uuid, uuid_str);
+	rc = daos_pool_connect(uuid_str, ap->sysname,
 			       DAOS_PC_RO, &ap->pool,
 			       NULL /* info */, NULL /* ev */);
 	if (rc != 0) {
@@ -1659,17 +1669,11 @@ cont_create_hdlr(struct cmd_args_s *ap)
 		attr.da_props = ap->props;
 		attr.da_mode = ap->mode;
 
-		if (uuid_is_null(ap->c_uuid))
-			rc = dfs_cont_create(ap->pool, &ap->c_uuid, &attr, NULL, NULL);
-		else
-			rc = dfs_cont_create(ap->pool, ap->c_uuid, &attr, NULL, NULL);
+		rc = dfs_cont_create(ap->pool, &ap->c_uuid, &attr, NULL, NULL);
 		if (rc)
 			rc = daos_errno2der(rc);
 	} else {
-		if (uuid_is_null(ap->c_uuid))
-			rc = daos_cont_create(ap->pool, &ap->c_uuid, ap->props, NULL);
-		else
-			rc = daos_cont_create(ap->pool, ap->c_uuid, ap->props, NULL);
+		rc = daos_cont_create(ap->pool, &ap->c_uuid, ap->props, NULL);
 	}
 
 	if (rc != 0) {
@@ -2649,15 +2653,15 @@ dm_connect(struct cmd_args_s *ap,
 					    dst_cont_info, NULL);
 		else
 			rc = -DER_NONEXIST;
+
 		if (rc == -DER_NONEXIST) {
 			uuid_t cuuid;
 
 			if (ca->cont_layout == DAOS_PROP_CO_LAYOUT_POSIX) {
+				/** XXX: should copy dfs_attr & properties from source container */
 				if (dst_cont_passed) {
-					rc = uuid_parse(ca->dst_cont, cuuid);
-					if (rc)
-						D_GOTO(err, rc);
-					rc = dfs_cont_create(ca->dst_poh, cuuid, NULL, NULL, NULL);
+					rc = dfs_cont_create_with_label(ca->dst_poh, ca->dst_cont,
+									NULL, &cuuid, NULL, NULL);
 				} else {
 					rc = dfs_cont_create(ca->dst_poh, &cuuid, NULL, NULL, NULL);
 					uuid_unparse(cuuid, ca->dst_cont);
@@ -2670,14 +2674,8 @@ dm_connect(struct cmd_args_s *ap,
 				}
 			} else {
 				if (dst_cont_passed) {
-					rc = uuid_parse(ca->dst_cont, cuuid);
-					if (rc == 0)
-						rc = daos_cont_create(ca->dst_poh, cuuid, props,
-								      NULL);
-					else
-						rc = daos_cont_create_with_label(ca->dst_poh,
-										 ca->dst_cont,
-										 props, NULL, NULL);
+					rc = daos_cont_create_with_label(ca->dst_poh, ca->dst_cont,
+									 props, &cuuid, NULL);
 				} else {
 					rc = daos_cont_create(ca->dst_poh, &cuuid, props, NULL);
 					uuid_unparse(cuuid, ca->dst_cont);

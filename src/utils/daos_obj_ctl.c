@@ -359,15 +359,17 @@ enum {
 static int
 cont_init(struct credit_context *tsc)
 {
+	char		str[37];
 	daos_handle_t	coh = DAOS_HDL_INVAL;
 	int		rc;
 
-	rc = daos_cont_create(tsc->tsc_poh, tsc->tsc_cont_uuid, NULL,
+	rc = daos_cont_create(tsc->tsc_poh, &tsc->tsc_cont_uuid, NULL,
 			      NULL);
 	if (rc != 0)
 		goto out;
 
-	rc = daos_cont_open(tsc->tsc_poh, tsc->tsc_cont_uuid,
+	uuid_unparse(tsc->tsc_cont_uuid, str);
+	rc = daos_cont_open(tsc->tsc_poh, str,
 			    DAOS_COO_RW, &coh, NULL, NULL);
 
 	tsc->tsc_coh = coh;
@@ -403,11 +405,12 @@ static int
 ctx_init(struct credit_context *tsc)
 {
 	int	rc;
+	char	str[37];
 
 	tsc->tsc_init = CTL_INIT_MODULE;
 
-	rc = daos_pool_connect(tsc->tsc_pool_uuid, NULL,
-			       DAOS_PC_RW, &tsc->tsc_poh,
+	uuid_unparse(tsc->tsc_pool_uuid, str);
+	rc = daos_pool_connect(str, NULL, DAOS_PC_RW, &tsc->tsc_poh,
 			       NULL /* info */, NULL /* ev */);
 
 	if (rc != 0) {

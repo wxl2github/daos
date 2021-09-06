@@ -152,10 +152,12 @@ init(void)
 static int
 pconnect(void)
 {
-	int rc;
+	char	str[37];
+	int	rc;
 
 	/** Connect to pool */
-	rc = daos_pool_connect(autotest_ap->p_uuid, autotest_ap->sysname,
+	uuid_unparse(autotest_ap->p_uuid, str);
+	rc = daos_pool_connect(str, autotest_ap->sysname,
 			       DAOS_PC_RW, &poh, NULL, NULL);
 	if (rc) {
 		step_fail(d_errdesc(rc));
@@ -212,7 +214,7 @@ fail:
 static int
 copen(void)
 {
-	int rc;
+	int	rc;
 
 	/** Open container */
 	rc = daos_cont_open(poh, cuuid, DAOS_COO_RW, &coh, NULL, NULL);
@@ -889,7 +891,7 @@ fail:
 static int
 cdestroy(void)
 {
-	int rc;
+	int	rc;
 
 	rc = daos_cont_destroy(poh, cuuid, force, NULL);
 	if (rc)
