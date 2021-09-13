@@ -157,7 +157,10 @@ extern "C" {
 	/** Invalid user/group permissions.*/				\
 	ACTION(DER_SHMEM_PERMS,         (DER_ERR_GURT_BASE + 44),	\
 	       Unable to access shared memory segment due to		\
-	       incompatible user or group permissions)
+	       incompatible user or group permissions)			\
+	/** Too many pthread keys */					\
+	ACTION(DER_PTHREAD_TOOMANYKEYS,	(DER_ERR_GURT_BASE + 45),	\
+	       Too many pthread keys)
 	/** TODO: add more error numbers */
 
 #define D_FOREACH_DAOS_ERR(ACTION)					\

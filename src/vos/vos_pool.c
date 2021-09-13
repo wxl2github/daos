@@ -273,12 +273,17 @@ vos_pool_create(const char *path, uuid_t uuid, daos_size_t scm_sz,
 		return daos_errno2der(errno);
 	}
 
-	ph = vos_pmemobj_create(path, POBJ_LAYOUT_NAME(vos_pool_layout), scm_sz,
-				0600);
+	ph = vos_pmemobj_create(path, POBJ_LAYOUT_NAME(vos_pool_layout), scm_sz, 0600);
 	if (!ph) {
 		rc = errno;
 		D_ERROR("Failed to create pool %s, size="DF_U64": %s\n", path,
 			scm_sz, pmemobj_errormsg());
+		/*
+		 * If we get EAGAIN, assume it is from a pthread_key_create
+		 * call made by pmemobj_create. See DAOS-6505.
+		 */
+		if (rc == EAGAIN)
+			return -DER_PTHREAD_TOOMANYKEYS;
 		return daos_errno2der(rc);
 	}
 
@@ -752,6 +757,12 @@ vos_pool_open(const char *path, uuid_t uuid, unsigned int flags,
 		rc = errno;
 		D_ERROR("Error in opening the pool "DF_UUID": %s\n",
 			DP_UUID(uuid), pmemobj_errormsg());
+		/*
+		 * If we get EAGAIN, assume it is from a pthread_key_create
+		 * call made by pmemobj_create. See DAOS-6505.
+		 */
+		if (rc == EAGAIN)
+			return -DER_PTHREAD_TOOMANYKEYS;
 		return daos_errno2der(rc);
 	}
 

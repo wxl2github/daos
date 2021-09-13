@@ -128,8 +128,7 @@ ds_mgmt_tgt_pool_create_ranks(uuid_t pool_uuid, char *tgt_dev,
 	tc_out = crt_reply_get(tc_req);
 	rc = tc_out->tc_rc;
 	if (rc != 0) {
-		D_ERROR(DF_UUID": failed to update pool map on targets: rc="
-			DF_RC"\n",
+		D_ERROR(DF_UUID": failed to create pool targets: rc="DF_RC"\n",
 			DP_UUID(tc_in->tc_pool_uuid), DP_RC(rc));
 		D_GOTO(decref, rc);
 	}
