@@ -1889,10 +1889,11 @@ co_destroy_force(void **state)
 	if (arg->myrank != 0)
 		return;
 
-	print_message("creating container "DF_UUIDF"\n",
-		      DP_UUID(uuid));
+	print_message("creating container\n");
 	rc = daos_cont_create(arg->pool.poh, &uuid, NULL, NULL);
 	assert_rc_equal(rc, 0);
+	print_message("container "DF_UUIDF" created\n",
+		      DP_UUID(uuid));
 
 	print_message("opening container\n");
 	uuid_unparse(uuid, str);
@@ -2488,7 +2489,7 @@ co_api_compat(void **state)
 	uuid_unparse(uuid1, str);
 	rc = daos_cont_destroy(arg->pool.poh, str, 0, NULL);
 	assert_rc_equal(rc, 0);
-	uuid_unparse(uuid1, str);
+	uuid_unparse(uuid2, str);
 	rc = daos_cont_destroy(arg->pool.poh, str, 0, NULL);
 	assert_rc_equal(rc, 0);
 	print_message("success\n");

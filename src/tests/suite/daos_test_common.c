@@ -211,12 +211,16 @@ test_setup_cont_create(void **state, daos_prop_t *co_prop)
 	int rc = 0;
 
 	if (arg->myrank == 0) {
-		print_message("setup: creating container "DF_UUIDF"\n",
-			      DP_UUID(arg->co_uuid));
+		print_message("setup: creating container\n");
 		rc = daos_cont_create(arg->pool.poh, &arg->co_uuid, co_prop,
 				      NULL);
-		if (rc)
+		if (rc) {
 			print_message("daos_cont_create failed, rc: %d\n", rc);
+		} else {
+			print_message("setup: container "DF_UUIDF" created\n",
+				      DP_UUID(arg->co_uuid));
+			uuid_unparse(arg->co_uuid, arg->co_str);
+		}
 	}
 	/** broadcast container create result */
 	if (arg->multi_rank) {
@@ -247,8 +251,8 @@ test_setup_cont_open(void **state)
 					    &arg->coh, &arg->co_info,
 					    NULL);
 		} else {
-			print_message("setup: opening container "DF_UUID"\n",
-				      DP_UUID(arg->co_uuid));
+			print_message("setup: opening container %s\n",
+				      arg->co_str);
 			rc = daos_cont_open(arg->pool.poh, arg->co_str,
 					    arg->cont_open_flags,
 					    &arg->coh, &arg->co_info, NULL);

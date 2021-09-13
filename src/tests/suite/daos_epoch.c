@@ -106,7 +106,7 @@ cont_create(test_arg_t *arg, uuid_t *uuid)
 	int rc;
 
 	rc = daos_cont_create(arg->pool.poh, uuid, NULL, NULL);
-	print_message("creating container "DF_UUIDF"\n", DP_UUID(*uuid));
+	print_message("created container "DF_UUIDF"\n", DP_UUID(*uuid));
 	return rc;
 }
 

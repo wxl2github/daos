@@ -741,14 +741,16 @@ setup_containers(void **state, daos_size_t nconts)
 	for (i = 0; i < nconts; i++) {
 		/* TODO: make test_setup_cont_create() generic, call here */
 		if (arg->myrank == 0) {
-			print_message("setup: creating container: "DF_UUIDF"\n",
-				      DP_UUID(lcarg->conts[i]));
+			print_message("setup: creating container\n");
 			rc = daos_cont_create(lcarg->tpool.poh,
 					      &lcarg->conts[i], NULL /* prop */,
 					      NULL /* ev */);
 			if (rc != 0)
 				print_message("setup: daos_cont_create "
 						"failed: %d\n", rc);
+			else
+				print_message("setup: container "DF_UUIDF" created\n",
+					      DP_UUID(lcarg->conts[i]));
 		}
 
 		if (arg->multi_rank) {

@@ -655,19 +655,18 @@ dfs_test_cont_atomic(void **state)
 	dfs_t			*dfs;
 	int			rc, op_rc;
 
-	if (arg->myrank == 0)
-		uuid_generate(cuuid);
-	/** share uuid with other ranks */
-	MPI_Bcast(cuuid, 16, MPI_CHAR, 0, MPI_COMM_WORLD);
-
 	/** All create a DFS container with POSIX layout */
 	if (arg->myrank == 0)
 		print_message("All ranks create the same POSIX container\n");
 
-	op_rc = dfs_cont_create(arg->pool.poh, &cuuid, NULL, NULL, NULL);
+	op_rc = dfs_cont_create_with_label(arg->pool.poh, "dfs_par_test_cont", NULL, &cuuid, NULL,
+					   NULL);
 	rc = check_one_success(op_rc, EEXIST, MPI_COMM_WORLD);
 	assert_int_equal(rc, 0);
 	MPI_Barrier(MPI_COMM_WORLD);
+
+	/** share uuid with other ranks */
+	MPI_Bcast(cuuid, 16, MPI_CHAR, 0, MPI_COMM_WORLD);
 
 	if (arg->myrank == 0)
 		print_message("one rank Created POSIX Container "DF_UUIDF"\n",
